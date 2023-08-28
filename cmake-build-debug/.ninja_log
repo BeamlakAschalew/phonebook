@@ -1,0 +1,27 @@
+# ninja log v5
+1	797	7146818758862403	CMakeFiles/phonebook.dir/main.cpp.obj	95a9de2a32097bfb
+805	1057	7146818761375462	phonebook.exe	e1dd767fe0f6f3bd
+60	6213	7146846350214946	CMakeFiles/phonebook.dir/main.cpp.obj	95a9de2a32097bfb
+6214	8490	7146846372990925	phonebook.exe	e1dd767fe0f6f3bd
+5	762	7146846536872945	CMakeFiles/phonebook.dir/main.cpp.obj	95a9de2a32097bfb
+763	966	7146846538859786	phonebook.exe	e1dd767fe0f6f3bd
+5	954	7146847501093471	CMakeFiles/phonebook.dir/main.cpp.obj	95a9de2a32097bfb
+955	1333	7146847504809587	phonebook.exe	e1dd767fe0f6f3bd
+5	1220	7146848593605680	CMakeFiles/phonebook.dir/main.cpp.obj	95a9de2a32097bfb
+1221	1650	7146848597910337	phonebook.exe	e1dd767fe0f6f3bd
+4	820	7146851643114154	CMakeFiles/phonebook.dir/main.cpp.obj	95a9de2a32097bfb
+820	1042	7146851645255933	phonebook.exe	e1dd767fe0f6f3bd
+6	769	7146851814199041	CMakeFiles/phonebook.dir/main.cpp.obj	95a9de2a32097bfb
+769	1056	7146851817000948	phonebook.exe	e1dd767fe0f6f3bd
+31	2496	7146874448854949	CMakeFiles/phonebook.dir/main.cpp.obj	95a9de2a32097bfb
+2497	4004	7146874463907287	phonebook.exe	e1dd767fe0f6f3bd
+6	1382	7146875159372067	CMakeFiles/phonebook.dir/main.cpp.obj	95a9de2a32097bfb
+1383	1655	7146875162060620	phonebook.exe	e1dd767fe0f6f3bd
+7	771	7146878627273634	CMakeFiles/phonebook.dir/main.cpp.obj	95a9de2a32097bfb
+771	986	7146878629331472	phonebook.exe	e1dd767fe0f6f3bd
+136	2492	7146891854794363	CMakeFiles/phonebook.dir/main.cpp.obj	95a9de2a32097bfb
+2493	3681	7146891866620915	phonebook.exe	e1dd767fe0f6f3bd
+3	774	7146892302905020	CMakeFiles/phonebook.dir/main.cpp.obj	95a9de2a32097bfb
+775	971	7146892304828281	phonebook.exe	e1dd767fe0f6f3bd
+3	792	7146893860134295	CMakeFiles/phonebook.dir/main.cpp.obj	95a9de2a32097bfb
+793	1192	7146893863892433	phonebook.exe	e1dd767fe0f6f3bd
