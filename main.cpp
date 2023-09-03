@@ -145,6 +145,7 @@ void modifyContact(string filename) {
     int contactCharCount = 0;
     bool found = false;
     Contact contact;
+    int contentAfterstart, contentAfterend, contentBeforeStart, contentBeforeEnd;
 
     while (!inFile.eof()) {
         contactCharCount = 0;
@@ -185,12 +186,20 @@ void modifyContact(string filename) {
                 found = true;
                 cout << "found" << endl;
                 cout << "Before seek: " << inFile.tellg() << endl;
+                int foundIndex = inFile.tellg();
+                contentBeforeStart = 0;
+                contentBeforeEnd = (int)inFile.tellg() - contactCharCount;
+                contentAfterstart = inFile.tellg();
+                inFile.seekg(0, ios::end);
+                contentAfterend = inFile.tellg();
+                inFile.seekg(foundIndex, ios::beg);
+
                 if (id == 1) {
                     inFile.seekp(0, ios::beg);
                 } else {
                     cout << "Total Char Count: " << totalCharCount << endl;
                     cout << "Contact char count: " << contactCharCount << endl;
-                    inFile.seekp(-contactCharCount, ios::cur);
+                   // inFile.seekp(-contactCharCount, ios::cur);
                 }
 
                 cout << "Before write: " << inFile.tellp() << endl;
@@ -201,6 +210,34 @@ void modifyContact(string filename) {
     }
 
     if (found) {
+
+        /// Store the string that is found before the content to be edited in a variable, Store the string that is found after the content to be edited in a variable, concatenate the three based on order, write it to a file by overwriting
+
+        cout << "Content before start: " << contentBeforeStart << endl;
+        cout << "Content before end: " << contentBeforeEnd << endl;
+        cout << "Content after start: " << contentAfterstart << endl;
+        cout << "Content after end: " << contentAfterend << endl;
+
+
+        string contentBefore, contentAfter;
+
+        for (int i = contentAfterstart; i < contentAfterend; i++) {
+            char c;
+            inFile.get(c);
+            contentAfter += c;
+        }
+
+        inFile.seekg(0, ios::beg);
+//
+        for (int i = contentBeforeStart; i < contentBeforeEnd; i++) {
+            char c;
+            inFile.get(c);
+            contentBefore += c;
+        }
+
+       cout << "String before: " << contentBefore << endl;
+        cout << "String after: " << contentAfter << endl;
+
         int choice;
         cout << "Select the field to modify:" << endl;
         cout << "1. First Name" << endl;
@@ -215,7 +252,7 @@ void modifyContact(string filename) {
             case 1:
                 cout << "Enter the new First Name: ";
                 getline(cin.ignore(), contact.firstName);
-                inFile.write(&contact.firstName[0], contact.firstName.length() + 1);
+                inFile.write(&contact.firstName[0], contact.firstName.length());
                 cout << "After first name: " << inFile.tellp() << endl;
                 break;
             case 2:
