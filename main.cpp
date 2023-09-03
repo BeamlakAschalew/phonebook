@@ -16,18 +16,19 @@ struct Contact {
 };
 
 // Function to write a contact to a binary file
-void addContact(const string& filename, const Contact& contact) {
+void addContact(string filename, Contact contact[]) {
     ofstream outFile(filename, ios::binary | ios::app);
     if (!outFile) {
         cerr << "Error opening file for writing." << endl;
         return;
     }
-
-    outFile.write(&contact.firstName[0], contact.firstName.length() + 1);
-    cout << "String size: " << contact.firstName.length() + 1 << endl;
-    outFile.write(contact.lastName.c_str(), contact.lastName.length() + 1);
-    outFile.write(&contact.gender, sizeof(char));
-    outFile.write(contact.phoneNumber.c_str(), contact.phoneNumber.length() + 1);
+    for (int i = 0; i < 6; i++) {
+        outFile.write(&contact[i].firstName[0], contact[i].firstName.length() + 1);
+        //cout << "String size: " << contact.firstName.length() + 1 << endl;
+        outFile.write(contact[i].lastName.c_str(), contact[i].lastName.length() + 1);
+        outFile.write(&contact[i].gender, sizeof(char) + 1);
+        outFile.write(contact[i].phoneNumber.c_str(), contact[i].phoneNumber.length() + 1);
+    }
 
     outFile.close();
 }
@@ -40,6 +41,7 @@ void displayContacts(const string& filename) {
         return;
     }
 
+    int id = 1;
     while (!inFile.eof()) {
         Contact contact;
 
@@ -52,11 +54,15 @@ void displayContacts(const string& filename) {
             contact.lastName += ch;
         }
 
-        inFile.read(&contact.gender, sizeof(char));
+        while (inFile.get(ch) && ch != '\0') {
+            contact.gender = ch;
+        }
 
         while (inFile.get(ch) && ch != '\0') {
             contact.phoneNumber += ch;
         }
+
+        contact.id = id;
 
         if (!contact.firstName.empty() || !contact.lastName.empty()) {
             cout << "ID: " << contact.id << endl;
@@ -66,7 +72,7 @@ void displayContacts(const string& filename) {
             cout << "Phone Number: " << contact.phoneNumber << endl;
             cout << "------------------------" << endl;
         }
-
+        id++;
     }
 
     inFile.close();
@@ -99,7 +105,9 @@ void searchContact(string filename) {
             contact.lastName += ch;
         }
 
-        inFile.read(&contact.gender, sizeof(char));
+        while (inFile.get(ch) && ch != '\0') {
+            contact.gender = ch;
+        }
 
         while (inFile.get(ch) && ch != '\0') {
             contact.phoneNumber += ch;
@@ -126,59 +134,121 @@ void modifyContact(string filename) {
     cout << "Enter first name: ";
     cin >> idInput;
 
-    ifstream inFile(filename, ios::binary);
+    fstream inFile(filename, ios::binary | ios::in | ios::out);
     if (!inFile) {
         cerr << "Error opening file for reading." << endl;
         return;
     }
+
     int id = 1;
-    int charCount = 0;
-    while (id <= idInput && !inFile.eof()) {
-        Contact contact;
+    int totalCharCount = 0;
+    int contactCharCount = 0;
+    bool found = false;
+    Contact contact;
 
-
+    while (!inFile.eof()) {
+        contactCharCount = 0;
         char ch;
 
         contact.id = id;
         while (inFile.get(ch) && ch != '\0') {
             contact.firstName += ch;
-            charCount++;
+            totalCharCount++;
+            contactCharCount++;
         }
+        contactCharCount++;
 
         while (inFile.get(ch) && ch != '\0') {
             contact.lastName += ch;
-            charCount++;
+            totalCharCount++;
+            contactCharCount++;
         }
+        contactCharCount++;
 
-        inFile.read(&contact.gender, sizeof(char));
-        charCount++;
+        while (inFile.get(ch) && ch != '\0') {
+            contact.gender = ch;
+            totalCharCount++;
+            contactCharCount++;
+        }
+        contactCharCount++;
+
 
         while (inFile.get(ch) && ch != '\0') {
             contact.phoneNumber += ch;
-            charCount++;
-
+            totalCharCount++;
+            contactCharCount++;
         }
+        contactCharCount++;
 
-        if (!contact.firstName.empty() || !contact.lastName.empty()) {
+            cout << "Id temp: " << id << " Id contact: " << contact.id << endl;
             if (contact.id == idInput) {
-                streampos pos = inFile.tellg();
-
-                // Move the file pointer back to the start of the contact's record
-                if (idInput == 1) {
-                    inFile.seekg(0, ios::beg);
+                found = true;
+                cout << "found" << endl;
+                cout << "Before seek: " << inFile.tellg() << endl;
+                if (id == 1) {
+                    inFile.seekp(0, ios::beg);
                 } else {
-                    inFile.seekg(charCount);
+                    cout << "Total Char Count: " << totalCharCount << endl;
+                    cout << "Contact char count: " << contactCharCount << endl;
+                    inFile.seekp(-contactCharCount, ios::cur);
                 }
 
-               cout << inFile.tellg();
+                cout << "Before write: " << inFile.tellp() << endl;
+                break;
 
-                // Write the modified contact back to the file
-               // inFile.write(reinterpret_cast<const char*>(&contact), sizeof(Contact));
             }
-        }
         id++;
-        cout << "itaeration finished" << endl;
-        break;
+    }
+
+    if (found) {
+        int choice;
+        cout << "Select the field to modify:" << endl;
+        cout << "1. First Name" << endl;
+        cout << "2. Last Name" << endl;
+        cout << "3. Gender" << endl;
+        cout << "4. Phone Number" << endl;
+        cout << "5. Exit" << endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cout << "Enter the new First Name: ";
+                getline(cin.ignore(), contact.firstName);
+                inFile.write(&contact.firstName[0], contact.firstName.length() + 1);
+                cout << "After first name: " << inFile.tellp() << endl;
+                break;
+            case 2:
+                cout << "Enter the new Last Name: ";
+                getline(cin, contact.lastName);
+
+                break;
+            case 3:
+                cout << "Enter the new Gender: ";
+                cin >> contact.gender;
+
+                break;
+            case 4:
+                cout << "Enter the new Phone Number: ";
+                getline(cin, contact.phoneNumber);
+
+                break;
+            default:
+                cout << "Invalid choice." << endl;
+                break;
+        }
+
+
+//        inFile.write(&contact.lastName[0], contact.lastName.length() + 1);
+//        cout << "After last name: " << inFile.tellp() << endl;
+//        inFile.write(&contact.gender, sizeof(char) + 1);
+//        cout << "After gender name: " << inFile.tellp() << endl;
+//        inFile.write(&contact.phoneNumber[0], contact.phoneNumber.length() + 1);
+//        cout << "After phone name: " << inFile.tellp() << endl;
+
+        cout << "Contact modified successfully." << endl;
+    } else {
+        cout << "Contact not found." << endl;
     }
 
     inFile.close();
@@ -192,7 +262,7 @@ int main() {
     bool navigating = true;
     int menuChoice;
 
-    Contact newContact = {"ABC", "uiop", 'M', "555-123-4567"};
+    Contact newContact[6] = {{.firstName = "Beamlak", .lastName = "Aschalew", .gender = 'M', .phoneNumber = "0936648802"}, {.firstName = "Beemnet", .lastName = "Aschalew", .gender = 'F', .phoneNumber = "0936647712"}, {.firstName = "Adil", .lastName = "Adem", .gender = 'M', .phoneNumber = "0960547818"}, {.firstName = "Alazar", .lastName = "Fasil", .gender = 'M', .phoneNumber = "0941412578"}, {.firstName = "Edom", .lastName = "Mulugeta", .gender = 'F', .phoneNumber = "0920212223"}, {.firstName = "Edlawit", .lastName = "Solomon", .gender = 'F', .phoneNumber = "0960127865"}};
 
     while (navigating) {
         cout << "1) View all contacts\n2) Search for a contact\n3) Add a new contact\n4) Modify existing contact\n5) Delete existing contact";
