@@ -106,6 +106,39 @@ build gpt.exe: CXX_EXECUTABLE_LINKER__gpt_Debug CMakeFiles/gpt.dir/gpt.cpp.obj
   TARGET_IMPLIB = libgpt.dll.a
   TARGET_PDB = gpt.exe.dbg
 
+# =============================================================================
+# Object build statements for EXECUTABLE target ed
+
+
+#############################################
+# Order-only phony target for ed
+
+build cmake_object_order_depends_target_ed: phony || CMakeFiles/ed.dir
+
+build CMakeFiles/ed.dir/clear.cpp.obj: CXX_COMPILER__ed_Debug D$:/cpp/projects/phonebook/clear.cpp || cmake_object_order_depends_target_ed
+  DEP_FILE = CMakeFiles\ed.dir\clear.cpp.obj.d
+  FLAGS = -g -std=gnu++14
+  OBJECT_DIR = CMakeFiles\ed.dir
+  OBJECT_FILE_DIR = CMakeFiles\ed.dir
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target ed
+
+
+#############################################
+# Link the executable ed.exe
+
+build ed.exe: CXX_EXECUTABLE_LINKER__ed_Debug CMakeFiles/ed.dir/clear.cpp.obj
+  FLAGS = -g
+  LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
+  OBJECT_DIR = CMakeFiles\ed.dir
+  POST_BUILD = cd .
+  PRE_LINK = cd .
+  TARGET_FILE = ed.exe
+  TARGET_IMPLIB = libed.dll.a
+  TARGET_PDB = ed.exe.dbg
+
 
 #############################################
 # Utility command for edit_cache
@@ -132,6 +165,8 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 # =============================================================================
 # Target aliases.
 
+build ed: phony ed.exe
+
 build gpt: phony gpt.exe
 
 build phonebook: phony phonebook.exe
@@ -144,7 +179,7 @@ build phonebook: phony phonebook.exe
 #############################################
 # Folder: D:/cpp/projects/phonebook/cmake-build-debug
 
-build all: phony phonebook.exe gpt.exe
+build all: phony phonebook.exe gpt.exe ed.exe
 
 # =============================================================================
 # Built-in targets
