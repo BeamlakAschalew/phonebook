@@ -1,5 +1,4 @@
 D:/cpp/projects/phonebook/cmake-build-debug/CMakeFiles/phonebook.dir
-D:/cpp/projects/phonebook/cmake-build-debug/CMakeFiles/gpt.dir
-D:/cpp/projects/phonebook/cmake-build-debug/CMakeFiles/ed.dir
+D:/cpp/projects/phonebook/cmake-build-debug/CMakeFiles/test.dir
 D:/cpp/projects/phonebook/cmake-build-debug/CMakeFiles/edit_cache.dir
 D:/cpp/projects/phonebook/cmake-build-debug/CMakeFiles/rebuild_cache.dir

@@ -6,7 +6,7 @@
 
 using namespace std;
 
-string filePath = "../contacts.bin";
+string filePath = "contacts.bin";
 
 ofstream output;
 ifstream input;
@@ -18,6 +18,27 @@ struct Contact {
     string phoneNumber;
     int id;
 };
+
+void printMenu() {
+    system("cls");
+//        cout << "########  ##     ##  #######  ##    ## ######## ########   #######   #######  ##    ## \n"
+//                "##     ## ##     ## ##     ## ###   ## ##       ##     ## ##     ## ##     ## ##   ##  \n"
+//                "##     ## ##     ## ##     ## ####  ## ##       ##     ## ##     ## ##     ## ##  ##   \n"
+//                "########  ######### ##     ## ## ## ## ######   ########  ##     ## ##     ## #####    \n"
+//                "##        ##     ## ##     ## ##  #### ##       ##     ## ##     ## ##     ## ##  ##   \n"
+//                "##        ##     ## ##     ## ##   ### ##       ##     ## ##     ## ##     ## ##   ##  \n"
+//                "##        ##     ##  #######  ##    ## ######## ########   #######   #######  ##    ## \n";
+    cout << "8888888b.  888    888  .d88888b.  888b    888 8888888888 888888b.    .d88888b.   .d88888b.  888    d8P  \n"
+            "888   Y88b 888    888 d88P\" \"Y88b 8888b   888 888        888  \"88b  d88P\" \"Y88b d88P\" \"Y88b 888   d8P   \n"
+            "888    888 888    888 888     888 88888b  888 888        888  .88P  888     888 888     888 888  d8P    \n"
+            "888   d88P 8888888888 888     888 888Y88b 888 8888888    8888888K.  888     888 888     888 888d88K     \n"
+            "8888888P\"  888    888 888     888 888 Y88b888 888        888  \"Y88b 888     888 888     888 8888888b    \n"
+            "888        888    888 888     888 888  Y88888 888        888    888 888     888 888     888 888  Y88b   \n"
+            "888        888    888 Y88b. .d88P 888   Y8888 888        888   d88P Y88b. .d88P Y88b. .d88P 888   Y88b  \n"
+            "888        888    888  \"Y88888P\"  888    Y888 8888888888 8888888P\"   \"Y88888P\"   \"Y88888P\"  888    Y88b \n";
+    cout << string(3, '\n');
+    cout << "1) View all contacts\n2) Search for a contact\n3) Add a new contact\n4) Modify existing contact\n5) Delete existing contact\n6) Import contacts from another file";
+}
 
 // Function to handle errors when opening a file
 bool openFile(ifstream &file, const string &fileName) {
@@ -89,6 +110,7 @@ bool verifyPhoneNumber(string number) {
 
 // Function to display all contacts
 void displayContacts() {
+    system("cls");
     if (!openFile(input, filePath)) {
         return;
     }
@@ -190,12 +212,17 @@ void addContact() {
     }
 
     output.write(&contact.firstName[0], contact.firstName.length() + 1);
-    output.write(contact.lastName.c_str(), contact.lastName.length() + 1);
+    output.write(&contact.lastName[0], contact.lastName.length() + 1);
     output.write(&contact.gender[0], contact.gender.length() + 1);
-    output.write(contact.phoneNumber.c_str(), contact.phoneNumber.length() + 1);
+    output.write(&contact.phoneNumber[0], contact.phoneNumber.length() + 1);
 
     output.close();
-    cout << "Contact added successfully." << endl;
+    cout << "Contact added successfully.\nIf you want to add more contacts press [Y] press any other key to exit registration" << endl;
+    char choice;
+    cin >> choice;
+    if (choice == 'Y' || choice == 'y') {
+        addContact();
+    }
 }
 
 // Function to modify an existing contact
@@ -300,7 +327,7 @@ void modifyContact() {
             contentBefore += c;
         }
 
-       cout << "String before: " << contentBefore << endl;
+        cout << "String before: " << contentBefore << endl;
         cout << "String after: " << contentAfter << endl;
 
         int choice;
@@ -345,7 +372,6 @@ void modifyContact() {
         cout << "p: " << contact.phoneNumber << endl;
 
 
-
         opFile.write(&contentBefore[0], contentBefore.length());
         opFile.write(&contact.firstName[0], contact.firstName.length() + 1);
         opFile.write(&contact.lastName[0], contact.lastName.length() + 1);
@@ -353,7 +379,13 @@ void modifyContact() {
         opFile.write(&contact.phoneNumber[0], contact.phoneNumber.length() + 1);
         opFile.write(&contentAfter[0], contentAfter.length());
         opFile.close();
-        cout << "Contact modified successfully." << endl;
+        cout << "Contact modified successfully.\n If you want to continue modifying contacts click [Y] else click any other key: ";
+        char continueChoice;
+
+        cin >> continueChoice;
+        if (continueChoice == 'Y' || continueChoice == 'y') {
+            modifyContact();
+        }
     } else {
         cout << "Contact not found." << endl;
     }
@@ -376,7 +408,7 @@ void deleteContact() {
     int contactCharCount = 0;
     bool found = false;
     Contact contact;
-    int contentAfterstart, contentAfterend, contentBeforeStart, contentBeforeEnd;
+    int contentAfterStart, contentAfterEnd, contentBeforeStart, contentBeforeEnd;
 
     while (!input.eof()) {
         contact = {};
@@ -425,9 +457,9 @@ void deleteContact() {
             int foundIndex = input.tellg();
             contentBeforeStart = 0;
             contentBeforeEnd = (int)input.tellg() - contactCharCount;
-            contentAfterstart = input.tellg();
+            contentAfterStart = input.tellg();
             input.seekg(0, ios::end);
-            contentAfterend = input.tellg();
+            contentAfterEnd = input.tellg();
             input.seekg(foundIndex, ios::beg);
 
 
@@ -447,7 +479,7 @@ void deleteContact() {
 
         string contentBefore, contentAfter;
 
-        for (int i = contentAfterstart; i < contentAfterend; i++) {
+        for (int i = contentAfterStart; i < contentAfterEnd; i++) {
             char c;
             input.get(c);
             cout << (int)c << " ";
@@ -488,12 +520,48 @@ void deleteContact() {
     input.close();
 }
 
+void importContacts() {
+    string externalFilePath;
+    Contact contact;
+    cout << "Enter the absolute path of the contact file: ";
+    getline(cin.ignore(), externalFilePath);
+
+    input.open(externalFilePath, ios::binary);
+
+
+    if (!input) {
+        cout << "The file specified doesn't exist\n";
+        return;
+    } else {
+        output.open(filePath, ios::app | ios::binary);
+
+        cout << "File found!\n";
+        int totalContactCount = 0;
+        while (readContact(input, contact)) {
+            output.write(&contact.firstName[0], contact.firstName.length() + 1);
+            output.write(&contact.lastName[0], contact.lastName.length() + 1);
+            output.write(&contact.gender[0], contact.gender.length() + 1);
+            output.write(&contact.phoneNumber[0], contact.phoneNumber.length() + 1);
+
+            totalContactCount++;
+        }
+        input.close();
+        output.close();
+
+        if (totalContactCount >= 1) {
+            cout << "Contacts added successfully!\nTotal contacts added: " << totalContactCount << endl;
+        } else {
+            cout << "No contacts added\n";
+        }
+    }
+}
+
 int main() {
     bool navigating = true;
     int menuChoice;
 
     while (navigating) {
-        cout << "1) View all contacts\n2) Search for a contact\n3) Add a new contact\n4) Modify existing contact\n5) Delete existing contact";
+        printMenu();
         cin >> menuChoice;
 
         switch (menuChoice) {
@@ -512,6 +580,9 @@ int main() {
                 break;
             case 5:
                 deleteContact();
+                break;
+            case 6:
+                importContacts();
                 break;
             default:
                 cout << "Invalid option." << endl;
