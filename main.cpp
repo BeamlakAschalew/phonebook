@@ -1,8 +1,12 @@
 /////// LET'S DO THIS!
+/// TODO: show contact list after modification or deletion
+/// TODO: make a proper system("cls") across all functions
+/// TODO: modularize read and write into functions
 
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <windows.h>
 
 using namespace std;
 
@@ -10,6 +14,8 @@ string filePath = "contacts.bin";
 
 ofstream output;
 ifstream input;
+
+HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
 struct Contact {
     string firstName;
@@ -21,13 +27,6 @@ struct Contact {
 
 void printMenu() {
     system("cls");
-//        cout << "########  ##     ##  #######  ##    ## ######## ########   #######   #######  ##    ## \n"
-//                "##     ## ##     ## ##     ## ###   ## ##       ##     ## ##     ## ##     ## ##   ##  \n"
-//                "##     ## ##     ## ##     ## ####  ## ##       ##     ## ##     ## ##     ## ##  ##   \n"
-//                "########  ######### ##     ## ## ## ## ######   ########  ##     ## ##     ## #####    \n"
-//                "##        ##     ## ##     ## ##  #### ##       ##     ## ##     ## ##     ## ##  ##   \n"
-//                "##        ##     ## ##     ## ##   ### ##       ##     ## ##     ## ##     ## ##   ##  \n"
-//                "##        ##     ##  #######  ##    ## ######## ########   #######   #######  ##    ## \n";
     cout << "8888888b.  888    888  .d88888b.  888b    888 8888888888 888888b.    .d88888b.   .d88888b.  888    d8P  \n"
             "888   Y88b 888    888 d88P\" \"Y88b 8888b   888 888        888  \"88b  d88P\" \"Y88b d88P\" \"Y88b 888   d8P   \n"
             "888    888 888    888 888     888 88888b  888 888        888  .88P  888     888 888     888 888  d8P    \n"
@@ -37,14 +36,46 @@ void printMenu() {
             "888        888    888 Y88b. .d88P 888   Y8888 888        888   d88P Y88b. .d88P Y88b. .d88P 888   Y88b  \n"
             "888        888    888  \"Y88888P\"  888    Y888 8888888888 8888888P\"   \"Y88888P\"   \"Y88888P\"  888    Y88b \n";
     cout << string(3, '\n');
-    cout << "1) View all contacts\n2) Search for a contact\n3) Add a new contact\n4) Modify existing contact\n5) Delete existing contact\n6) Import contacts from another file";
+    cout << "1) View all contacts\n2) Search for a contact\n3) Add a new contact\n4) Modify existing contact\n5) Delete existing contact\n6) Import contacts from another file\n7) Fuzzy Search";
+}
+
+void printIndividualContact(Contact c) {
+    cout << string(30, '-') << endl;
+    SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
+    cout << "ID: ";
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+    cout << string(3, ' ') << c.id << endl;
+    cout << string(30, '-') << endl;
+    SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
+    cout << "First Name: ";
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+    cout <<  c.firstName;
+    SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
+    cout << "\nLast Name: ";
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+    cout << c.lastName;
+    SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
+    cout << "\nGender: ";
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+    cout << c.gender;
+    SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
+    cout << "\nPhone Number: ";
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+    cout << c.phoneNumber << endl;
+    cout << string(30, '-') << "\n\n";
+}
+
+void coloredErrorMessage(string errorMessage) {
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
+    cout << errorMessage << endl;
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 }
 
 // Function to handle errors when opening a file
 bool openFile(ifstream &file, const string &fileName) {
     file.open(fileName, ios::binary);
     if (!file) {
-        cout << "Error opening file for reading: " << fileName << endl;
+        coloredErrorMessage("Error opening file for reading: " + fileName);
         return false;
     }
     return true;
@@ -54,7 +85,7 @@ bool openFile(ifstream &file, const string &fileName) {
 bool openFileForWriting(ofstream &file, const string &fileName) {
     file.open(fileName, ios::binary | ios::app);
     if (!file) {
-        cout << "Error opening file for writing: " << fileName << endl;
+        coloredErrorMessage("Error opening file for writing: " + fileName);
         return false;
     }
     return true;
@@ -122,17 +153,12 @@ void displayContacts() {
     while (readContact(input, contact)) {
         contact.id = id;
         found = true;
-        cout << "ID: " << contact.id << endl;
-        cout << "First Name: " << contact.firstName << endl;
-        cout << "Last Name: " << contact.lastName << endl;
-        cout << "Gender: " << contact.gender << endl;
-        cout << "Phone Number: " << contact.phoneNumber << endl;
-        cout << "------------------------" << endl;
+        printIndividualContact(contact);
         id++;
     }
 
     if (!found) {
-        cout << "No contacts found" << endl;
+        coloredErrorMessage("No contacts found");
     }
 
     input.close();
@@ -144,10 +170,15 @@ void searchContact() {
         return;
     }
 
-    string fname;
+    system("cls");
+
+    string fname, lname;
     cout << "Enter first name: ";
     cin.ignore();
     getline(cin, fname);
+
+    cout << "Enter last name: ";
+    getline(cin, lname);
 
     int id = 1;
     Contact contact;
@@ -155,20 +186,15 @@ void searchContact() {
 
     while (readContact(input, contact)) {
         contact.id = id;
-        if (!contact.firstName.empty() && contact.firstName == fname) {
+        if (!contact.firstName.empty() && contact.firstName == fname && contact.lastName == lname) {
             found = true;
-            cout << "ID: " << contact.id << endl;
-            cout << "First Name: " << contact.firstName << endl;
-            cout << "Last Name: " << contact.lastName << endl;
-            cout << "Gender: " << contact.gender << endl;
-            cout << "Phone Number: " << contact.phoneNumber << endl;
-            cout << "------------------------" << endl;
+            printIndividualContact(contact);
         }
         id++;
     }
 
     if (!found) {
-        cout << "No contacts found" << endl;
+        coloredErrorMessage("No contacts found");
     }
 
     input.close();
@@ -186,28 +212,28 @@ void addContact() {
     cin.ignore();
     getline(cin, contact.firstName);
     if(!verifyNames(contact.firstName)) {
-        cout << "First name is invalid, try again\n";
+        coloredErrorMessage("First name is invalid, try again");
         goto firstNameEntry;
     }
 
     lastNameEntry: cout << "Enter Last Name: ";
     getline(cin, contact.lastName);
     if(!verifyNames(contact.lastName)) {
-        cout << "Last name is invalid, try again\n";
+        coloredErrorMessage("Last name is invalid, try again");
         goto lastNameEntry;
     }
 
     genderEntry: cout << "Enter Gender: ";
     cin >> contact.gender;
     if(!verifyGender(contact.gender[0])) {
-        cout << "Invalid gender, try again\n";
+        coloredErrorMessage("Invalid gender, try again");
         goto genderEntry;
     }
 
     phoneEntry: cout << "Enter Phone Number: ";
     cin >> contact.phoneNumber;
     if(!verifyGender(contact.gender[0])) {
-        cout << "Invalid phone number, try again\n";
+        coloredErrorMessage("Invalid phone number, try again");
         goto phoneEntry;
     }
 
@@ -277,15 +303,8 @@ void modifyContact() {
         }
         contactCharCount++;
 
-            cout << "Id temp: " << id << " Id contact: " << contact.id << endl;
             if (contact.id == idInput) {
-                cout << "fname: " << contact.firstName << endl;
-                cout << "last: " << contact.lastName << endl;
-                cout << "gender: " << contact.gender << endl;
-                cout << "phone: " << contact.phoneNumber << endl;
                 found = true;
-                cout << "found" << endl;
-                cout << "Before seek: " << input.tellg() << endl;
                 int foundIndex = input.tellg();
                 contentBeforeStart = 0;
                 contentBeforeEnd = (int)input.tellg() - contactCharCount;
@@ -293,12 +312,6 @@ void modifyContact() {
                 input.seekg(0, ios::end);
                 contentAfterEnd = input.tellg();
                 input.seekg(foundIndex, ios::beg);
-
-
-                    cout << "Total Char Count: " << totalCharCount << endl;
-                    cout << "Contact char count: " << contactCharCount << endl;
-
-                cout << "Before write: " << input.tellg() << endl;
                 break;
 
             }
@@ -317,7 +330,7 @@ void modifyContact() {
             cout << (int)c << " ";
             contentAfter += c;
         }
-        cout << endl << "spacer" << endl;
+
         input.seekg(0, ios::beg);
 //
         for (int i = contentBeforeStart; i < contentBeforeEnd; i++) {
@@ -326,9 +339,6 @@ void modifyContact() {
             cout << (int)c << " ";
             contentBefore += c;
         }
-
-        cout << "String before: " << contentBefore << endl;
-        cout << "String after: " << contentAfter << endl;
 
         int choice;
         cout << "Select the field to modify:" << endl;
@@ -361,16 +371,11 @@ void modifyContact() {
 
                 break;
             default:
-                cout << "Invalid choice." << endl;
+                coloredErrorMessage("Invalid choice.");
                 break;
         }
 
         ofstream opFile(filePath, ios::binary);
-        cout << "f: " << contact.firstName << endl;
-        cout << "l: " << contact.lastName << endl;
-        cout << "g: " << contact.gender << endl;
-        cout << "p: " << contact.phoneNumber << endl;
-
 
         opFile.write(&contentBefore[0], contentBefore.length());
         opFile.write(&contact.firstName[0], contact.firstName.length() + 1);
@@ -387,7 +392,7 @@ void modifyContact() {
             modifyContact();
         }
     } else {
-        cout << "Contact not found." << endl;
+        coloredErrorMessage("Contact not found.");
     }
 
     input.close();
@@ -447,13 +452,7 @@ void deleteContact() {
 
         cout << "Id temp: " << id << " Id contact: " << contact.id << endl;
         if (contact.id == idInput) {
-            cout << "fname: " << contact.firstName << endl;
-            cout << "last: " << contact.lastName << endl;
-            cout << "gender: " << contact.gender << endl;
-            cout << "phone: " << contact.phoneNumber << endl;
             found = true;
-            cout << "found" << endl;
-            cout << "Before seek: " << input.tellg() << endl;
             int foundIndex = input.tellg();
             contentBeforeStart = 0;
             contentBeforeEnd = (int)input.tellg() - contactCharCount;
@@ -461,14 +460,7 @@ void deleteContact() {
             input.seekg(0, ios::end);
             contentAfterEnd = input.tellg();
             input.seekg(foundIndex, ios::beg);
-
-
-            cout << "Total Char Count: " << totalCharCount << endl;
-            cout << "Contact char count: " << contactCharCount << endl;
-
-            cout << "Before write: " << input.tellg() << endl;
             break;
-
         }
         id++;
     }
@@ -485,7 +477,6 @@ void deleteContact() {
             cout << (int)c << " ";
             contentAfter += c;
         }
-        cout << endl << "spacer" << endl;
         input.seekg(0, ios::beg);
 //
         for (int i = contentBeforeStart; i < contentBeforeEnd; i++) {
@@ -494,9 +485,6 @@ void deleteContact() {
             cout << (int)c << " ";
             contentBefore += c;
         }
-
-        cout << "String before: " << contentBefore << endl;
-        cout << "String after: " << contentAfter << endl;
 
         char choice;
         cout << "Click [Y] if you want to delete:" << endl;
@@ -512,10 +500,8 @@ void deleteContact() {
             return;
         }
     } else {
-        cout << "Contact not found." << endl;
+        coloredErrorMessage("Contact not found.");
     }
-
-    input.close();
 
     input.close();
 }
@@ -530,7 +516,7 @@ void importContacts() {
 
 
     if (!input) {
-        cout << "The file specified doesn't exist\n";
+        coloredErrorMessage("The file specified doesn't exist");
         return;
     } else {
         output.open(filePath, ios::app | ios::binary);
@@ -551,12 +537,113 @@ void importContacts() {
         if (totalContactCount >= 1) {
             cout << "Contacts added successfully!\nTotal contacts added: " << totalContactCount << endl;
         } else {
-            cout << "No contacts added\n";
+            coloredErrorMessage("No contacts added");
         }
     }
 }
 
+void searchByPhoneNumber() {
+    if (!openFile(input, filePath)) {
+        return;
+    }
+
+    string phoneNumber;
+    cout << "Enter phone number: ";
+    cin.ignore();
+    getline(cin, phoneNumber);
+
+    int id = 1;
+    Contact contact;
+    bool found = false;
+
+    while (readContact(input, contact)) {
+        contact.id = id;
+        if (!contact.firstName.empty() && contact.phoneNumber == phoneNumber) {
+            found = true;
+            printIndividualContact(contact);
+        }
+        id++;
+    }
+
+    if (!found) {
+        coloredErrorMessage("No contacts found");
+    }
+
+    input.close();
+}
+
+void fuzzySearch() {
+
+    system("cls");
+    if (!openFile(input, filePath)) {
+        return;
+    }
+
+    string fname, lname, combined;
+    int nameLength;
+
+    cout << "Enter first name: ";
+    getline(cin.ignore(), fname);
+
+    cout << "Enter last name: ";
+    getline(cin, lname);
+
+    combined = fname + lname;
+
+    int id = 1;
+    Contact contact;
+    bool found = false;
+
+    string dividedName;
+    nameLength = combined.length() / 4;
+
+    if (nameLength <= 0) {
+        dividedName = combined;
+    } else {
+        for (int i = 0; i < nameLength; i++) {
+            string part = combined.substr(i * 4, 4);
+            dividedName += part.append(" ");
+        }
+    }
+
+    while (readContact(input, contact)) {
+        string tempName = dividedName;
+        contact.id = id;
+        string base = contact.firstName + contact.lastName;
+
+        while (tempName.length() >= 3) {
+            unsigned int spacePos = tempName.find(' ');
+            string temp = tempName.substr(0, spacePos);
+            int foundPosition = base.find(temp);
+            if (foundPosition > base.length()) {
+                continue;
+            } else {
+                found = true;
+                printIndividualContact(contact);
+                break;
+            }
+            tempName = tempName.substr(spacePos + 1);
+        }
+        id++;
+    }
+
+    if (!found) {
+        coloredErrorMessage("No contacts found");
+    }
+
+    input.close();
+}
+
+void advancedSearch() {
+    cout << "[1] Search by phone number\n";
+    cout << "[2] Fuzzy search\n";
+    cout << "[3] Combination search\n";
+
+
+}
+
 int main() {
+    SetConsoleTitle("Phonebook App");
     bool navigating = true;
     int menuChoice;
 
@@ -571,9 +658,8 @@ int main() {
             case 2:
                 searchContact();
                 break;
-            case 3: {
+            case 3:
                 addContact();
-            }
                 break;
             case 4:
                 modifyContact();
@@ -584,8 +670,11 @@ int main() {
             case 6:
                 importContacts();
                 break;
+            case 7:
+                fuzzySearch();
+                break;
             default:
-                cout << "Invalid option." << endl;
+                coloredErrorMessage("Invalid option.");
         }
 
         char choice;
